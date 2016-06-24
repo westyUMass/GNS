@@ -1,4 +1,5 @@
 edu.umass.cs.gnsclient.client
-edu.umass.cs.gnsclient.client.http
+edu.umass.cs.gnsclient.client.testing
 edu.umass.cs.gnsclient.examples
 edu.umass.cs.gnscommon
+edu.umass.cs.gnsserver.gnsapp
