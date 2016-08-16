@@ -21,6 +21,7 @@ edu.umass.cs.gnscommon.asynch
 edu.umass.cs.gnscommon.exceptions
 edu.umass.cs.gnscommon.exceptions.client
 edu.umass.cs.gnscommon.exceptions.server
+edu.umass.cs.gnscommon.packets
 edu.umass.cs.gnscommon.utils
 edu.umass.cs.gnsserver.activecode
 edu.umass.cs.gnsserver.activecode.protocol
@@ -28,6 +29,7 @@ edu.umass.cs.gnsserver.activecode.worker
 edu.umass.cs.gnsserver.database
 edu.umass.cs.gnsserver.gnamed
 edu.umass.cs.gnsserver.gnsapp
+edu.umass.cs.gnsserver.gnsapp.activegns
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commandSupport
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands
@@ -39,7 +41,7 @@ edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.data
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.group
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.select
 edu.umass.cs.gnsserver.gnsapp.clientSupport
-edu.umass.cs.gnsserver.gnsapp.noopTest
+edu.umass.cs.gnsserver.gnsapp.deprecated
 edu.umass.cs.gnsserver.gnsapp.packet
 edu.umass.cs.gnsserver.gnsapp.packet.admin
 edu.umass.cs.gnsserver.gnsapp.recordmap
