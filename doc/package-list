@@ -1,1 +1,8 @@
 edu.umass.cs.gnsclient.client
+edu.umass.cs.gnscommon
+edu.umass.cs.gnscommon.exceptions
+edu.umass.cs.gnscommon.exceptions.client
+edu.umass.cs.gnscommon.exceptions.server
+edu.umass.cs.gnsserver.gnsapp
+edu.umass.cs.gnsserver.main
+org.json
