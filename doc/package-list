@@ -24,8 +24,10 @@ edu.umass.cs.gnscommon.exceptions.server
 edu.umass.cs.gnscommon.packets
 edu.umass.cs.gnscommon.utils
 edu.umass.cs.gnsserver.activecode
-edu.umass.cs.gnsserver.activecode.protocol
-edu.umass.cs.gnsserver.activecode.worker
+edu.umass.cs.gnsserver.activecode.prototype
+edu.umass.cs.gnsserver.activecode.prototype.interfaces
+edu.umass.cs.gnsserver.activecode.prototype.unblockingworker
+edu.umass.cs.gnsserver.activecode.prototype.utils
 edu.umass.cs.gnsserver.database
 edu.umass.cs.gnsserver.gnamed
 edu.umass.cs.gnsserver.gnsapp
@@ -38,6 +40,7 @@ edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.acl
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.activecode
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.admin
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.data
+edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.deprecated
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.group
 edu.umass.cs.gnsserver.gnsapp.clientCommandProcessor.commands.select
 edu.umass.cs.gnsserver.gnsapp.clientSupport
