@@ -82,7 +82,7 @@ public class DefaultGNSTest extends DefaultTest {
 	 * Overriding parent watcher with {code tearDownAfterClass(boolean)} invocation.
 	 */
 	@Rule
-	public TestWatcher watcher = new TestWatcher() {
+	public TestWatcher teardown = new TestWatcher() {
 		@Override
 		protected void failed(Throwable e, Description description) {
 			System.out.println(" FAILED!!!!!!!!!!!!! " + e);
@@ -95,11 +95,6 @@ public class DefaultGNSTest extends DefaultTest {
 				e1.printStackTrace();
 			}
 			System.exit(1);
-		}
-
-		@Override
-		protected void succeeded(Description description) {
-			System.out.println(" succeeded");
 		}
 	};
 
