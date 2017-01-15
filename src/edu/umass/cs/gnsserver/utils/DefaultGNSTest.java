@@ -15,10 +15,13 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import edu.umass.cs.gigapaxos.PaxosConfig;
+import edu.umass.cs.gigapaxos.PaxosConfig.PC;
 import edu.umass.cs.gigapaxos.paxosutil.RequestInstrumenter;
-import edu.umass.cs.gigapaxos.testing.TESTPaxosShutdownThread;
 import edu.umass.cs.gnsclient.client.GNSClient;
 import edu.umass.cs.gnsclient.client.GNSClientCommands;
 import edu.umass.cs.gnsclient.client.GNSCommand;
@@ -33,6 +36,7 @@ import edu.umass.cs.gnsserver.database.MongoRecords;
 import edu.umass.cs.reconfiguration.ReconfigurableNode;
 import edu.umass.cs.reconfiguration.ReconfigurationConfig;
 import edu.umass.cs.reconfiguration.reconfigurationutils.DefaultNodeConfig;
+import edu.umass.cs.utils.Config;
 import edu.umass.cs.utils.DefaultTest;
 import edu.umass.cs.utils.Util;
 
@@ -73,6 +77,31 @@ public class DefaultGNSTest extends DefaultTest {
 		}
 		return null;
 	}
+	
+	/**
+	 * Overriding parent watcher with {code tearDownAfterClass(boolean)} invocation.
+	 */
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+		@Override
+		protected void failed(Throwable e, Description description) {
+			System.out.println(" FAILED!!!!!!!!!!!!! " + e);
+			e.printStackTrace();
+			if (Config.getGlobalBoolean(PC.DEBUG))
+				System.out.println(RequestInstrumenter.getLog());
+			try {
+				tearDownAfterClass(true);
+			} catch (ClientException | IOException e1) {
+				e1.printStackTrace();
+			}
+			System.exit(1);
+		}
+
+		@Override
+		protected void succeeded(Description description) {
+			System.out.println(" succeeded");
+		}
+	};
 
 	protected static enum DefaultProps {
 		SERVER_COMMAND("server.command", GP_SERVER, true),
@@ -103,6 +132,9 @@ public class DefaultGNSTest extends DefaultTest {
 
 		public final String key;
 		public final String value;
+
+		;
+
 		final boolean isFile;
 
 		DefaultProps(String key, String value, boolean isFile) {
@@ -170,6 +202,7 @@ public class DefaultGNSTest extends DefaultTest {
 
 	private static void createMasterAccountGUID() throws InterruptedException {
 		int tries = MAX_TRIES;
+
 		boolean accountCreated = false;
 
 		do {
@@ -200,7 +233,7 @@ public class DefaultGNSTest extends DefaultTest {
 	protected static final long TIMEOUT = 8000;
 
 	private static void startClients() throws IOException {
-		System.out.print("Starting client ");
+		System.out.print("Starting client");
 		int numRetries = 2;
 		boolean forceCoordinated = true;
 		client = new GNSClient().setNumRetriesUponTimeout(numRetries)
@@ -211,7 +244,6 @@ public class DefaultGNSTest extends DefaultTest {
 
 	private static void waitTillServersReady() throws InterruptedException,
 			FileNotFoundException, IOException {
-
 		// no need to wait if singleJVM or not starting servers
 		if (singleJVM()
 				|| "false".equals(System
@@ -281,20 +313,6 @@ public class DefaultGNSTest extends DefaultTest {
 					+ options;
 			System.out.println(startServerCmd);
 
-			// if we started servers, add a graceful shutdown hook
-			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					try {
-						tearDownAfterClass(true);
-					} catch (ClientException | IOException e) {
-						// can't do much at this point
-						e.printStackTrace();
-					}
-				}
-			}));
-
 			// servers are being started here
 			if (singleJVM())
 				startServersSingleJVM();
@@ -349,26 +367,13 @@ public class DefaultGNSTest extends DefaultTest {
 
 	private static void removeCreatedState() throws ClientException,
 			IOException {
-		System.out.println("Removing global account "
-				+ GuidUtils.getGUIDKeys(globalAccountName));
-		/* arun: need a more efficient, parallel implementation of removal of
-		 * sub-guids, otherwise this times out. */
-
-		try {
-			client.execute(
-					GNSCommand.accountGuidRemove(GuidUtils
-							.getGUIDKeys(globalAccountName)));
-		} catch (ClientException e) {
-			// FIXME: need to increase timeout
-			e.printStackTrace();
-		}
+		// globalAccountName should be removed here or before coming here
 	}
 
 	private static void closeServers(String stopOrForceclear) {
 		System.out.println("--" + RequestInstrumenter.getLog() + "--");
 
-		// if ("true".equals(System.getProperty(DefaultProps.STOP_SERVER.key)))
-		{
+		if ("true".equals(System.getProperty(DefaultProps.STOP_SERVER.key))) {
 			if (singleJVM()) {
 				for (String server : PaxosConfig.getActives().keySet())
 					ReconfigurableNode.forceClear(server);
@@ -376,6 +381,7 @@ public class DefaultGNSTest extends DefaultTest {
 						.getReconfiguratorIDs())
 					ReconfigurableNode.forceClear(server);
 			} else { // separate JVMs
+				// separate JVMs
 				String stopCmd = System
 						.getProperty(DefaultProps.SERVER_COMMAND.key)
 						+ " "
@@ -443,7 +449,6 @@ public class DefaultGNSTest extends DefaultTest {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 	}
 
 	private static final String getLogFile() throws FileNotFoundException,

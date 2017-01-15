@@ -19,6 +19,29 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
+import edu.umass.cs.gigapaxos.PaxosConfig;
+import edu.umass.cs.gigapaxos.paxosutil.RequestInstrumenter;
+import edu.umass.cs.reconfiguration.ReconfigurableNode;
+import edu.umass.cs.gnscommon.CommandType;
+import edu.umass.cs.gnscommon.GNSProtocol;
+import edu.umass.cs.gnscommon.AclAccessType;
+import edu.umass.cs.gnscommon.ResponseCode;
+import edu.umass.cs.contextservice.client.ContextServiceClient;
+import edu.umass.cs.gnsclient.client.GNSClient;
+import edu.umass.cs.gnsclient.client.GNSClientCommands;
+import edu.umass.cs.gnsclient.client.GNSCommand;
+import edu.umass.cs.gnsclient.client.util.BasicGuidEntry;
+import edu.umass.cs.gnsclient.client.util.GuidEntry;
+import edu.umass.cs.gnsclient.client.util.GuidUtils;
+import edu.umass.cs.gnsclient.client.util.JSONUtils;
+import edu.umass.cs.gnsclient.client.util.SHA1HashFunction;
+import edu.umass.cs.gnscommon.utils.RandomString;
+import edu.umass.cs.gnscommon.exceptions.client.ClientException;
+import edu.umass.cs.gnscommon.exceptions.client.EncryptionException;
+import edu.umass.cs.gnscommon.exceptions.client.FieldNotFoundException;
+import edu.umass.cs.gnsclient.jsonassert.JSONAssert;
+import edu.umass.cs.gnsclient.jsonassert.JSONCompareMode;
+import edu.umass.cs.gnscommon.utils.Base64;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -40,39 +63,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
-import edu.umass.cs.contextservice.client.ContextServiceClient;
-import edu.umass.cs.gigapaxos.PaxosConfig;
-import edu.umass.cs.gigapaxos.paxosutil.RequestInstrumenter;
-import edu.umass.cs.gnsclient.client.GNSClient;
-import edu.umass.cs.gnsclient.client.GNSClientCommands;
-import edu.umass.cs.gnsclient.client.GNSCommand;
-import edu.umass.cs.gnsclient.client.util.BasicGuidEntry;
-import edu.umass.cs.gnsclient.client.util.GuidEntry;
-import edu.umass.cs.gnsclient.client.util.GuidUtils;
-import edu.umass.cs.gnsclient.client.util.JSONUtils;
-import edu.umass.cs.gnsclient.client.util.SHA1HashFunction;
-import edu.umass.cs.gnsclient.jsonassert.JSONAssert;
-import edu.umass.cs.gnsclient.jsonassert.JSONCompareMode;
-import edu.umass.cs.gnscommon.AclAccessType;
-import edu.umass.cs.gnscommon.CommandType;
-import edu.umass.cs.gnscommon.GNSProtocol;
-import edu.umass.cs.gnscommon.ResponseCode;
-import edu.umass.cs.gnscommon.exceptions.client.ClientException;
-import edu.umass.cs.gnscommon.exceptions.client.EncryptionException;
-import edu.umass.cs.gnscommon.exceptions.client.FieldNotFoundException;
-import edu.umass.cs.gnscommon.utils.Base64;
-import edu.umass.cs.gnscommon.utils.RandomString;
 import edu.umass.cs.gnscommon.utils.ThreadUtils;
 import edu.umass.cs.gnsserver.database.MongoRecords;
 import edu.umass.cs.gnsserver.main.GNSConfig;
 import edu.umass.cs.gnsserver.utils.DefaultGNSTest;
-import edu.umass.cs.reconfiguration.ReconfigurableNode;
 import edu.umass.cs.reconfiguration.ReconfigurationConfig;
 import edu.umass.cs.reconfiguration.reconfigurationutils.DefaultNodeConfig;
 import edu.umass.cs.utils.Config;
@@ -111,7 +112,7 @@ public class ServerIntegrationTest extends DefaultGNSTest {
   private static final String GNS_DIR = "GNS";
   private static final String GNS_HOME = HOME + "/" + GNS_DIR + "/";
 
-  private static final String getPath(String filename) {
+  private static String getPath(String filename) {
     if (new File(filename).exists()) {
       return filename;
     }
@@ -239,16 +240,17 @@ public class ServerIntegrationTest extends DefaultGNSTest {
 		 * still useful for distributed tests as there is no intentionally
 		 * support in gigapaxos' async client to detect if all servrs are up. */
     String waitString = System.getProperty("waitTillAllServersReady");
-    if (waitString != null) 
+    if (waitString != null) {
       WAIT_TILL_ALL_SERVERS_READY = Integer.parseInt(waitString);
+    }
 
     // get pattern for log files
 	Properties logProps = new Properties();
 	logProps.load(new FileInputStream(System.getProperty(DefaultProps.LOGGING_PROPERTIES.key)));
 	String logFiles = logProps.getProperty("java.util.logging.FileHandler.pattern");
+
 	if(logFiles!=null) logFiles = logFiles.replaceAll("%.*", "").trim() + "*";
 	new File(logFiles.replaceFirst("/[^/]*$", "")).mkdirs();
-
 	
     if (logFiles != null) {
   	  System.out.print("Deleting log files " + logFiles);
@@ -292,16 +294,18 @@ public class ServerIntegrationTest extends DefaultGNSTest {
       System.out.println(startServerCmd);
 
       // servers are being started here
-      if(singleJVM())
-    	  startServersSingleJVM();
-      else {
+      if(singleJVM()) {
+        startServersSingleJVM();
+      } else {
     	  ArrayList<String> output = RunServer.command(startServerCmd, ".");
 
-    	  if (output != null) 
-    		  for (String line : output) 
-    			  System.out.println(line);
-    	  else 
-    		  failWithStackTrace("Server command failure: ; aborting all tests.");
+    	  if (output != null) {
+            for (String line : output) {
+              System.out.println(line);
+            }
+              } else {
+            failWithStackTrace("Server command failure: ; aborting all tests.");
+              }
       }
     }
 
@@ -311,20 +315,21 @@ public class ServerIntegrationTest extends DefaultGNSTest {
 	int numServersUp=0;
 	// a little sleep ensures that there is time for at least one log file to get created
 	Thread.sleep(500);
-	if(!singleJVM())
-    do {
-    	output = RunServer.command("cat " + logFiles + " | grep -a \"server ready\" | wc -l ", ".", false);
-    	String temp = output.get(0);
-    	temp = temp.replaceAll("\\s", "");
-    	try {
-    		numServersUp = Integer.parseInt(temp);
-    	} catch(NumberFormatException e) {
-    		// can happen if no files have yet gotten created
-    		System.out.println(e);
-    	}
-    	System.out.println(Integer.toString(numServersUp) + " out of " + Integer.toString(numServers) + " servers are ready.");
-    	Thread.sleep(1000);
-    } while (numServersUp < numServers);
+	if(!singleJVM()) {
+          do {
+            output = RunServer.command("cat " + logFiles + " | grep -a \"server ready\" | wc -l ", ".", false);
+            String temp = output.get(0);
+            temp = temp.replaceAll("\\s", "");
+            try {
+              numServersUp = Integer.parseInt(temp);
+            } catch(NumberFormatException e) {
+              // can happen if no files have yet gotten created
+              System.out.println(e);
+            }
+            System.out.println(Integer.toString(numServersUp) + " out of " + Integer.toString(numServers) + " servers are ready.");
+            Thread.sleep(1000);
+          } while (numServersUp < numServers);
+    }
 
     System.out.println("Starting client");
 
@@ -371,12 +376,14 @@ public class ServerIntegrationTest extends DefaultGNSTest {
 
   }
   
-  private static final void startServersSingleJVM() throws IOException {
+  private static void startServersSingleJVM() throws IOException {
 	  // all JVM properties should be already set above
-	  for(String server : ReconfigurationConfig.getReconfiguratorIDs()) 
-		  ReconfigurableNode.main(new String[]{server, ReconfigurationConfig.CommandArgs.start.toString(), server});
-	  for(String server : PaxosConfig.getActives().keySet()) 
-		  ReconfigurableNode.main(new String[]{server, ReconfigurationConfig.CommandArgs.start.toString(), server});
+	  for(String server : ReconfigurationConfig.getReconfiguratorIDs()) {
+            ReconfigurableNode.main(new String[]{server, ReconfigurationConfig.CommandArgs.start.toString(), server});
+          }
+	  for(String server : PaxosConfig.getActives().keySet()) {
+            ReconfigurableNode.main(new String[]{server, ReconfigurationConfig.CommandArgs.start.toString(), server});
+          }
   }
 
   public static void tearDownAfterClass() throws ClientException, IOException {
@@ -398,10 +405,12 @@ public class ServerIntegrationTest extends DefaultGNSTest {
     if (System.getProperty("startServer") != null
             && System.getProperty("startServer").equals("true")) {
     	if(singleJVM()) {
-    		for(String server : PaxosConfig.getActives().keySet())
-    			ReconfigurableNode.forceClear(server);
-    		for(String server: ReconfigurationConfig.getReconfiguratorIDs())
-    			ReconfigurableNode.forceClear(server);
+    		for(String server : PaxosConfig.getActives().keySet()) {
+                  ReconfigurableNode.forceClear(server);
+                    }
+    		for(String server: ReconfigurationConfig.getReconfiguratorIDs()) {
+                  ReconfigurableNode.forceClear(server);
+                    }
     	}
     	else if (useGPScript()) {
         String stopCmd = System
@@ -479,8 +488,9 @@ public class ServerIntegrationTest extends DefaultGNSTest {
    */
 	private static void waitSettle(long wait) {
 		try {
-			if (wait > 0)
-				Thread.sleep(wait);
+			if (wait > 0) {
+                          Thread.sleep(wait);
+                        }
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -551,7 +561,7 @@ public class ServerIntegrationTest extends DefaultGNSTest {
 			ClientException, IOException {
 		// CHECKED FOR VALIDITY
 		String testGuidName = "testGUID" + RandomString.randomString(12);
-		GuidEntry testGuid = null;
+		GuidEntry testGuid;
 
 		testGuid = clientCommands.guidCreate(masterGuid, testGuidName);
 		clientCommands.guidRemove(masterGuid, testGuid.getGuid());
@@ -674,7 +684,7 @@ public class ServerIntegrationTest extends DefaultGNSTest {
 			ClientException, IOException {
 		// CHECKED FOR VALIDITY
 		String testGuidName = "testGUID" + RandomString.randomString(12);
-		GuidEntry testGuid = null;
+		GuidEntry testGuid;
 		testGuid = clientCommands.guidCreate(masterGuid, testGuidName);
 
 		Assert.assertEquals(masterGuid.getGuid(),
@@ -1026,7 +1036,6 @@ public class ServerIntegrationTest extends DefaultGNSTest {
 	 * @throws IOException
 	 * @throws JSONException
 	 * @throws ClientException
-	 * @throws IOException
 	 */
 	public void test_135_ACLMaybeAddAllFieldsForMaster(GuidEntry westyEntry)
 			throws ClientException, JSONException, IOException {
