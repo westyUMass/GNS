@@ -96,10 +96,9 @@ public class HighConcurrencyReadsTest extends DefaultTest {
 		clients = new GNSClientCommands[numClients];
 		executor = (ScheduledThreadPoolExecutor) Executors
 				.newScheduledThreadPool(numClients);
-		for (int i = 0; i < numClients; i++) {
-                  clients[i] = new GNSClientCommands();
-                }
-		String gnsInstance = GNSClientCommands.getGNSProvider();
+		for (int i = 0; i < numClients; i++)
+			clients[i] = new GNSClientCommands();
+		String gnsInstance = clients[0].getGNSProvider();
 		accountGuidEntries = new GuidEntry[numAccountGuids];
 
 		int numPreExisting = 0;

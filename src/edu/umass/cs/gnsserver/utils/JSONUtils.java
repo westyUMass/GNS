@@ -213,7 +213,6 @@ public class JSONUtils {
    * Returns true if the JSON Array contains the object.
    * Returns false if the object is null or the array is empty.
    *
-   * @param object
    * @param jsonArray
    * @return an ArrayList of Objects
    * @throws JSONException

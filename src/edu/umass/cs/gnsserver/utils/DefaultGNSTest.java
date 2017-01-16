@@ -127,9 +127,6 @@ public class DefaultGNSTest extends DefaultTest {
 
 		public final String key;
 		public final String value;
-
-		;
-
 		final boolean isFile;
 
 		DefaultProps(String key, String value, boolean isFile) {
@@ -197,7 +194,6 @@ public class DefaultGNSTest extends DefaultTest {
 
 	private static void createMasterAccountGUID() throws InterruptedException {
 		int tries = MAX_TRIES;
-
 		boolean accountCreated = false;
 
 		do {
@@ -228,7 +224,7 @@ public class DefaultGNSTest extends DefaultTest {
 	protected static final long TIMEOUT = 8000;
 
 	private static void startClients() throws IOException {
-		System.out.print("Starting client");
+		System.out.print("Starting client ");
 		int numRetries = 2;
 		boolean forceCoordinated = true;
 		client = new GNSClient().setNumRetriesUponTimeout(numRetries)
@@ -239,6 +235,7 @@ public class DefaultGNSTest extends DefaultTest {
 
 	private static void waitTillServersReady() throws InterruptedException,
 			FileNotFoundException, IOException {
+
 		// no need to wait if singleJVM or not starting servers
 		if (singleJVM()
 				|| "false".equals(System
@@ -308,6 +305,20 @@ public class DefaultGNSTest extends DefaultTest {
 					+ options;
 			System.out.println(startServerCmd);
 
+			// if we started servers, add a graceful shutdown hook
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						tearDownAfterClass(true);
+					} catch (ClientException | IOException e) {
+						// can't do much at this point
+						e.printStackTrace();
+					}
+				}
+			}));
+
 			// servers are being started here
 			if (singleJVM())
 				startServersSingleJVM();
@@ -362,13 +373,14 @@ public class DefaultGNSTest extends DefaultTest {
 
 	private static void removeCreatedState() throws ClientException,
 			IOException {
-		// globalAccountName should be removed here or before coming here
+		// need to remove globalAccountName here
 	}
 
 	private static void closeServers(String stopOrForceclear) {
 		System.out.println("--" + RequestInstrumenter.getLog() + "--");
 
-		if ("true".equals(System.getProperty(DefaultProps.STOP_SERVER.key))) {
+		// if ("true".equals(System.getProperty(DefaultProps.STOP_SERVER.key)))
+		{
 			if (singleJVM()) {
 				for (String server : PaxosConfig.getActives().keySet())
 					ReconfigurableNode.forceClear(server);
@@ -376,7 +388,6 @@ public class DefaultGNSTest extends DefaultTest {
 						.getReconfiguratorIDs())
 					ReconfigurableNode.forceClear(server);
 			} else { // separate JVMs
-				// separate JVMs
 				String stopCmd = System
 						.getProperty(DefaultProps.SERVER_COMMAND.key)
 						+ " "
@@ -444,6 +455,7 @@ public class DefaultGNSTest extends DefaultTest {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
 	}
 
 	private static final String getLogFile() throws FileNotFoundException,

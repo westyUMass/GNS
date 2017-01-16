@@ -364,13 +364,6 @@ ${build.major.number}.${build.minor.number}.${build.revision.number})</h1>]]>
       <!-- Make sure these libraries are included -->
       <classpath refid="classpath.test" />
 
-
-      <batchtest>
-        <fileset dir="${src.dir}">
-          <include name="**/${test}.java"/>
-        </fileset>
-      </batchtest>
-
       <batchtest>
         <fileset dir="${test.dir}">
           <include name="**/${test}.java"/>

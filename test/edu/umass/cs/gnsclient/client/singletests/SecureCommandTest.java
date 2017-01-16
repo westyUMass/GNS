@@ -111,9 +111,6 @@ public class SecureCommandTest {
     }
   }
 
-  /**
-   *
-   */
   @Test
   public void test_06_SecureRetrieveACL() {
     try {
@@ -130,9 +127,6 @@ public class SecureCommandTest {
   private static String secondAccountAlias;
   private static String secondAccountGuid = null;
 
-  /**
-   *
-   */
   @Test
   public void test_07_AddSecondGuid() {
     secondAccountAlias = "SECOND" + RandomString.randomString(12);
@@ -145,9 +139,6 @@ public class SecureCommandTest {
     }
   }
 
-  /**
-   *
-   */
   @Test
   public void test_08_GetGuid() {
     try {
@@ -157,9 +148,6 @@ public class SecureCommandTest {
     }
   }
 
-  /**
-   *
-   */
   @Test
   public void test_09_AddAcl() {
     try {
@@ -170,9 +158,6 @@ public class SecureCommandTest {
     }
   }
 
-  /**
-   *
-   */
   @Test
   public void test_10_AddAclCheck() {
     try {
@@ -186,9 +171,6 @@ public class SecureCommandTest {
     }
   }
 
-  /**
-   * Remove the acl.
-   */
   @Test
   public void test_11_RemoveAcl() {
     try {
@@ -199,9 +181,6 @@ public class SecureCommandTest {
     }
   }
 
-  /**
-   * Check to ensure the acl was removed.
-   */
   @Test
   public void test_12_RemoveAclCheck() {
     try {
@@ -214,32 +193,26 @@ public class SecureCommandTest {
       failWithStackTrace("Exception while retrieving account record acl: ", e);
     }
   }
-
-  /**
-   * Remove the account.
-   */
-  @Test
-  public void test_20_SecureRemoveAccount() {
-    try {
-      client.execute(GNSCommand.accountGuidRemoveSecure(accountAlias));
-    } catch (ClientException | IOException e) {
-      failWithStackTrace("Exception while removing account record: ", e);
-    }
-  }
-
-  /**
-   * Check to make sure account was removed.
-   */
-  @Test
-  public void test_21_SecureRemoveAccountCheck() {
-
-    try {
-      client.execute(GNSCommand.lookupGUID(accountAlias)).getResultString();
-      failWithStackTrace("Should have throw a client "
-              + "exception while looking the guid for " + accountAlias);
-    } catch (ClientException | IOException e) {
-    }
-  }
+//
+//  @Test
+//  public void test_20_SecureRemoveAccount() {
+//    try {
+//      client.execute(GNSCommand.accountGuidRemoveSecure(accountAlias));
+//    } catch (ClientException | IOException e) {
+//      failWithStackTrace("Exception while removing account record: ", e);
+//    }
+//  }
+//
+//  @Test
+//  public void test_21_SecureRemoveAccountCheck() {
+//
+//    try {
+//      client.execute(GNSCommand.lookupGUID(accountAlias)).getResultString();
+//      failWithStackTrace("Should have throw a client "
+//              + "exception while looking the guid for " + accountAlias);
+//    } catch (ClientException | IOException e) {
+//    }
+//  }
 
   private static final void failWithStackTrace(String message, Exception... e) {
     if (e != null && e.length > 0) {

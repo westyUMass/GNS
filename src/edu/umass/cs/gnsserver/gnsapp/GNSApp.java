@@ -376,6 +376,8 @@ public class GNSApp extends AbstractReconfigurablePaxosApp<String> implements
     }
     if(this.requestHandler.getInternalClient()!=null)
     	this.requestHandler.getInternalClient().close();
+    if(this.requestHandler.getRemoteQuery()!=null)
+    	this.requestHandler.getRemoteQuery().close();
   }
 
   /**

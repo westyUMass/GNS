@@ -10,6 +10,8 @@ package edu.umass.cs.gnsclient.client.singletests;
 import edu.umass.cs.gnsclient.client.http.HttpClient;
 import edu.umass.cs.gnsclient.client.util.GuidEntry;
 import edu.umass.cs.gnsclient.client.util.GuidUtils;
+import edu.umass.cs.gnscommon.AclAccessType;
+import edu.umass.cs.gnscommon.GNSProtocol;
 import edu.umass.cs.gnscommon.exceptions.client.ClientException;
 import edu.umass.cs.gnscommon.utils.RandomString;
 import java.io.IOException;
@@ -34,18 +36,12 @@ public class SimpleHttpClientTest {
 
   private static GuidEntry masterGuid;
 
-  /**
-   *
-   */
   public SimpleHttpClientTest() {
     if (client == null) {
       client = new HttpClient("127.0.0.1", 8080);
     }
   }
 
-  /**
-   *
-   */
   @Test
   public void test_900_Http_CreateAccountGuid() {
     try {
@@ -96,10 +92,6 @@ public class SimpleHttpClientTest {
 //      failWithStackTrace("Exception in Http_RemoveACL: ", e);
 //    }
 //  }
-
-  /**
-   *
-   */
 
   @Test
   public void test_904_Http_UpdateFields() {

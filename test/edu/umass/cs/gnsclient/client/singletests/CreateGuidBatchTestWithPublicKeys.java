@@ -28,6 +28,7 @@ import edu.umass.cs.gnscommon.exceptions.client.ClientException;
 import edu.umass.cs.gnscommon.utils.RandomString;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,6 +49,10 @@ import org.junit.runners.MethodSorters;
 public class CreateGuidBatchTestWithPublicKeys {
 
   private static GNSClientCommands client;
+  /**
+   * The address of the GNS server we will contact
+   */
+  private static InetSocketAddress address = null;
 
   /**
    *

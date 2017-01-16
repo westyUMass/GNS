@@ -26,6 +26,7 @@ import edu.umass.cs.gnsclient.client.util.GuidEntry;
 import edu.umass.cs.gnsclient.client.util.GuidUtils;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.*;
@@ -48,6 +49,10 @@ public class SelectClientTest {
   private static final String ACCOUNT_ALIAS = "support@gns.name"; // REPLACE THIS WITH YOUR ACCOUNT ALIAS
   private static final String PASSWORD = "password";
   private static GNSClientCommands client;
+  /**
+   * The address of the GNS server we will contact
+   */
+  private static InetSocketAddress address = null;
   private static GuidEntry masterGuid;
 
   /**
